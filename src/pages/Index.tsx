@@ -1,13 +1,41 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useApp } from '@/context/AppContext';
+import Hero from '@/components/home/Hero';
+import EventsList from '@/components/home/EventsList';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import AuthModal from '@/components/auth/AuthModal';
 
 const Index = () => {
+  const { events } = useApp();
+
+  // Preload images for better user experience
+  useEffect(() => {
+    events.forEach(event => {
+      if (event.imageUrl) {
+        const img = new Image();
+        img.src = event.imageUrl;
+      }
+    });
+  }, [events]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Navbar />
+      <main>
+        <Hero />
+        <EventsList />
+      </main>
+      <Footer />
+      <AuthModal />
+    </motion.div>
   );
 };
 
