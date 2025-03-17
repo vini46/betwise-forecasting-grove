@@ -26,11 +26,10 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
     setLoading(true);
     
     try {
-      // In a real app, this would be an actual API call
-      // For now, we'll use a simple hardcoded check
+      // Hardcoded admin credentials for demonstration
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (username === 'admin' && password === 'admin123') {
+      if (username === 'admin' && password === 'admin') {
         toast.success('Admin login successful');
         onLogin();
       } else {
@@ -75,6 +74,9 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
               placeholder="Enter password"
               disabled={loading}
             />
+          </div>
+          <div className="text-sm text-blue-600 mb-2">
+            Admin login: username = "admin", password = "admin"
           </div>
           <Button 
             type="submit" 

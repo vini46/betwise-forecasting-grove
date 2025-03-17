@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AuthModal = () => {
@@ -48,6 +48,11 @@ const AuthModal = () => {
   const toggleAuthMode = () => {
     resetForm();
     setAuthMode(authMode === 'login' ? 'register' : 'login');
+  };
+
+  const setPresetUser = (userId: string, password: string) => {
+    setEmail(userId);
+    setPassword(password);
   };
 
   return (
@@ -96,6 +101,30 @@ const AuthModal = () => {
             </div>
           </div>
           
+          {authMode === 'login' && (
+            <div className="mb-4">
+              <h3 className="text-sm font-medium mb-2 flex items-center gap-1">
+                <User size={14} />
+                Predefined Users:
+              </h3>
+              <div className="grid grid-cols-3 gap-2">
+                {['user1', 'user2', 'user3', 'user4', 'user5'].map((userId) => (
+                  <button
+                    key={userId}
+                    type="button"
+                    onClick={() => setPresetUser(userId, userId)}
+                    className="text-xs py-1 px-2 border rounded hover:bg-primary/10 transition-colors"
+                  >
+                    {userId}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Password is the same as username
+              </p>
+            </div>
+          )}
+          
           <AnimatePresence mode="wait">
             <motion.form
               key={authMode}
@@ -120,11 +149,11 @@ const AuthModal = () => {
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email or Username</Label>
                 <Input
                   id="email"
-                  type="email"
-                  placeholder="name@example.com"
+                  type="text"
+                  placeholder={authMode === 'login' ? "email or username" : "name@example.com"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required

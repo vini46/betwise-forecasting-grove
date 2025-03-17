@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -15,9 +15,31 @@ import Footer from '@/components/layout/Footer';
 import AdminEventCreation from '@/components/admin/AdminEventCreation';
 import AdminEventResolution from '@/components/admin/AdminEventResolution';
 import AdminLogin from '@/components/admin/AdminLogin';
+import { toast } from 'sonner';
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Check if admin is already logged in from localStorage
+  useEffect(() => {
+    const adminAuth = localStorage.getItem('adminAuth');
+    if (adminAuth === 'true') {
+      setIsAuthenticated(true);
+      toast.success('Welcome back, admin');
+    }
+  }, []);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    // Store admin authentication in localStorage
+    localStorage.setItem('adminAuth', 'true');
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('adminAuth');
+    toast.success('Admin logged out successfully');
+  };
 
   if (!isAuthenticated) {
     return (
@@ -30,7 +52,7 @@ const Admin = () => {
             transition={{ duration: 0.5 }}
             className="w-full max-w-md"
           >
-            <AdminLogin onLogin={() => setIsAuthenticated(true)} />
+            <AdminLogin onLogin={handleLogin} />
           </motion.div>
         </div>
         <Footer />
@@ -48,9 +70,17 @@ const Admin = () => {
           transition={{ duration: 0.5 }}
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         >
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="text-muted-foreground mt-2">Manage prediction markets and resolve events</p>
+          <div className="mb-8 flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+              <p className="text-muted-foreground mt-2">Manage prediction markets and resolve events</p>
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md transition-colors"
+            >
+              Logout
+            </button>
           </div>
 
           <Tabs defaultValue="create">

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -64,6 +63,8 @@ interface AppContextType {
   setIsAuthModalOpen: (isOpen: boolean) => void;
   createEvent: (eventData: NewEventData) => Promise<void>;
   resolveEvent: (eventId: string, outcome: 'yes' | 'no') => Promise<void>;
+  predefineLoginMode: boolean;
+  setPredefineLoginMode: (mode: boolean) => void;
 }
 
 const defaultContext: AppContextType = {
@@ -81,6 +82,8 @@ const defaultContext: AppContextType = {
   setIsAuthModalOpen: () => {},
   createEvent: async () => {},
   resolveEvent: async () => {},
+  predefineLoginMode: false,
+  setPredefineLoginMode: () => {},
 };
 
 const AppContext = createContext<AppContextType>(defaultContext);
@@ -93,16 +96,55 @@ export const useApp = () => {
   return context;
 };
 
+// Predefined user accounts
+const predefinedUsers = [
+  {
+    id: 'user1',
+    name: 'User 1',
+    email: 'user1@example.com',
+    password: 'user1',
+    walletBalance: 10000,
+  },
+  {
+    id: 'user2',
+    name: 'User 2',
+    email: 'user2@example.com',
+    password: 'user2',
+    walletBalance: 10000,
+  },
+  {
+    id: 'user3',
+    name: 'User 3',
+    email: 'user3@example.com',
+    password: 'user3',
+    walletBalance: 10000,
+  },
+  {
+    id: 'user4',
+    name: 'User 4',
+    email: 'user4@example.com',
+    password: 'user4',
+    walletBalance: 10000,
+  },
+  {
+    id: 'user5',
+    name: 'User 5',
+    email: 'user5@example.com',
+    password: 'user5',
+    walletBalance: 10000,
+  },
+];
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
   const [userBets, setUserBets] = useState<Bet[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [predefineLoginMode, setPredefineLoginMode] = useState(true);
 
   // Load mock data or fetch from API
   useEffect(() => {
-    // This would be replaced with actual API calls in production
     const mockEvents: Event[] = [
       {
         id: '1',
@@ -175,25 +217,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const login = async (email: string, password: string) => {
     try {
-      // This would be replaced with actual API calls
-      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock successful login
-      const mockUser = {
-        id: '123',
-        name: 'Demo User',
-        email: email,
-        walletBalance: 10000,
-      };
+      const predefinedUser = predefinedUsers.find(
+        (u) => (u.email === email || u.id === email) && u.password === password
+      );
+
+      if (predefinedUser) {
+        const mockUser = {
+          id: predefinedUser.id,
+          name: predefinedUser.name,
+          email: predefinedUser.email,
+          walletBalance: predefinedUser.walletBalance,
+        };
+        
+        setUser(mockUser);
+        setIsAuthenticated(true);
+        setIsAuthModalOpen(false);
+        toast.success(`Welcome back, ${mockUser.name}`);
+        
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        return;
+      }
       
-      setUser(mockUser);
-      setIsAuthenticated(true);
-      setIsAuthModalOpen(false);
-      toast.success('Login successful');
-      
-      // Store in localStorage for persistence
-      localStorage.setItem('user', JSON.stringify(mockUser));
+      if (!predefineLoginMode) {
+        const mockUser = {
+          id: '123',
+          name: 'Demo User',
+          email: email,
+          walletBalance: 10000,
+        };
+        
+        setUser(mockUser);
+        setIsAuthenticated(true);
+        setIsAuthModalOpen(false);
+        toast.success('Login successful');
+        
+        localStorage.setItem('user', JSON.stringify(mockUser));
+      } else {
+        toast.error('Invalid credentials. Try one of the predefined accounts.');
+      }
     } catch (error) {
       console.error('Login failed', error);
       toast.error('Login failed. Please try again.');
@@ -202,16 +265,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      // This would be replaced with actual API calls
-      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock successful registration
+      const existingUser = predefinedUsers.find(u => u.email === email);
+      if (existingUser) {
+        toast.error('This email is already registered');
+        return;
+      }
+      
       const mockUser = {
-        id: '123',
+        id: `user-${Date.now()}`,
         name: name,
         email: email,
-        walletBalance: 5000, // New users get Rs. 5000 as bonus
+        walletBalance: 5000,
       };
       
       setUser(mockUser);
@@ -219,7 +285,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setIsAuthModalOpen(false);
       toast.success('Registration successful! Welcome to the platform.');
       
-      // Store in localStorage for persistence
       localStorage.setItem('user', JSON.stringify(mockUser));
     } catch (error) {
       console.error('Registration failed', error);
@@ -283,13 +348,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return;
     }
     
-    // Update user balance
     const updatedUser = {
       ...user,
       walletBalance: user.walletBalance - totalCost,
     };
     
-    // Create new bet
     const newBet: Bet = {
       id: `bet-${Date.now()}`,
       eventId,
@@ -300,7 +363,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       timestamp: new Date(),
     };
     
-    // Update event volumes
     const updatedEvents = events.map(e => {
       if (e.id === eventId) {
         return {
@@ -312,12 +374,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return e;
     });
     
-    // Update state
     setUser(updatedUser);
     setUserBets([...userBets, newBet]);
     setEvents(updatedEvents);
     
-    // Update localStorage
     localStorage.setItem('user', JSON.stringify(updatedUser));
     
     toast.success(`Successfully placed a ${type.toUpperCase()} bet of ${quantity} contracts`);
@@ -325,11 +385,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const createEvent = async (eventData: NewEventData): Promise<void> => {
     try {
-      // This would be replaced with actual API calls
-      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Create a new event with a unique ID
       const newEvent: Event = {
         id: `event-${Date.now()}`,
         ...eventData,
@@ -349,11 +406,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const resolveEvent = async (eventId: string, outcome: 'yes' | 'no'): Promise<void> => {
     try {
-      // This would be replaced with actual API calls
-      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Update the event status
       const updatedEvents = events.map(event => {
         if (event.id === eventId) {
           return {
@@ -365,8 +419,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
       
       setEvents(updatedEvents);
-      
-      // In a real app, this would trigger payouts to users
       toast.success(`Event resolved as ${outcome.toUpperCase()}`);
     } catch (error) {
       console.error('Failed to resolve event:', error);
@@ -375,7 +427,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  // Check for stored user data on initial load
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -407,6 +458,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsAuthModalOpen,
         createEvent,
         resolveEvent,
+        predefineLoginMode,
+        setPredefineLoginMode,
       }}
     >
       {children}
