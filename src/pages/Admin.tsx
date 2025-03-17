@@ -16,6 +16,7 @@ import AdminEventCreation from '@/components/admin/AdminEventCreation';
 import AdminEventResolution from '@/components/admin/AdminEventResolution';
 import AdminLogin from '@/components/admin/AdminLogin';
 import { toast } from 'sonner';
+import { ShieldCheck } from 'lucide-react';
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -71,9 +72,12 @@ const Admin = () => {
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         >
           <div className="mb-8 flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-              <p className="text-muted-foreground mt-2">Manage prediction markets and resolve events</p>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="size-6 text-primary" />
+              <div>
+                <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+                <p className="text-muted-foreground mt-2">Manage prediction markets and resolve events (in ₹)</p>
+              </div>
             </div>
             <button 
               onClick={handleLogout}

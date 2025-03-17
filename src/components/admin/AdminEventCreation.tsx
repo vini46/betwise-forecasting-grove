@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,9 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { useApp } from '@/context/AppContext';
+import { useNavigate } from 'react-router-dom';
+import { IndianRupee, CalendarPlus } from 'lucide-react';
 
 const AdminEventCreation = () => {
   const { createEvent } = useApp();
+  const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
@@ -22,8 +26,25 @@ const AdminEventCreation = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Check if user is admin
+  useEffect(() => {
+    const adminAuth = localStorage.getItem('adminAuth');
+    if (adminAuth !== 'true') {
+      toast.error('You need admin privileges to access this page');
+      navigate('/');
+    } else {
+      setIsAdmin(true);
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check admin status again for security
+    if (!isAdmin) {
+      toast.error('You need admin privileges to create events');
+      return;
+    }
     
     // Validation
     if (!title || !description || !category || !closingDate || !resolutionDate || !resolutionSource) {
@@ -81,9 +102,18 @@ const AdminEventCreation = () => {
     }
   };
 
+  if (!isAdmin) {
+    return null;
+  }
+
   return (
     <Card>
       <CardContent className="pt-6">
+        <div className="flex items-center gap-2 mb-6">
+          <CalendarPlus className="text-primary" />
+          <h2 className="text-xl font-semibold">Create New Prediction Market</h2>
+        </div>
+        
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div>
@@ -214,7 +244,7 @@ const AdminEventCreation = () => {
             
             <div>
               <label className="block text-sm font-medium mb-3">
-                Platform Fee: {fee}%
+                Platform Fee: {fee}% <span className="text-xs text-muted-foreground">(in ₹)</span>
               </label>
               <Slider
                 value={[fee]}
@@ -225,9 +255,9 @@ const AdminEventCreation = () => {
                 disabled={loading}
               />
               <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                <span>0%</span>
-                <span>5%</span>
-                <span>10%</span>
+                <span>₹0</span>
+                <span>₹5</span>
+                <span>₹10</span>
               </div>
             </div>
           </div>
@@ -251,8 +281,13 @@ const AdminEventCreation = () => {
             >
               Reset
             </Button>
-            <Button type="submit" className="button-primary" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Event'}
+            <Button type="submit" className="button-primary flex items-center gap-2" disabled={loading}>
+              {loading ? 'Creating...' : (
+                <>
+                  <IndianRupee size={16} />
+                  Create Event
+                </>
+              )}
             </Button>
           </div>
         </form>

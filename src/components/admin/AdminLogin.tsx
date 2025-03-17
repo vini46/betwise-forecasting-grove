@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Lock } from 'lucide-react';
+import { Lock, IndianRupee, ShieldCheck } from 'lucide-react';
 
 interface AdminLoginProps {
   onLogin: () => void;
@@ -46,9 +46,14 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
   return (
     <Card className="shadow-lg">
       <CardHeader className="space-y-1">
+        <div className="flex justify-center mb-2">
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+            <ShieldCheck className="text-primary" size={24} />
+          </div>
+        </div>
         <CardTitle className="text-2xl text-center">Admin Login</CardTitle>
         <CardDescription className="text-center">
-          Enter your credentials to access the admin panel
+          Enter your credentials to access the admin panel (₹ Markets)
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -80,10 +85,15 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
           </div>
           <Button 
             type="submit" 
-            className="w-full button-primary"
+            className="w-full button-primary flex items-center justify-center gap-2"
             disabled={loading}
           >
-            {loading ? 'Authenticating...' : 'Login'}
+            {loading ? 'Authenticating...' : (
+              <>
+                <IndianRupee size={16} />
+                Login as Admin
+              </>
+            )}
           </Button>
         </form>
       </CardContent>
