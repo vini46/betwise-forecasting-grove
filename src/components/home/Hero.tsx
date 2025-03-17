@@ -37,7 +37,7 @@ const Hero = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="inline-block bg-primary/10 text-primary font-medium px-4 py-1.5 rounded-full text-sm"
             >
-              Welcome to BetWise
+              Welcome to Prophezy
             </motion.span>
             
             <motion.h1

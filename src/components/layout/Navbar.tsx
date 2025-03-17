@@ -58,7 +58,7 @@ const Navbar = () => {
               to="/" 
               className="text-xl font-bold font-display"
             >
-              BetWise
+              Prophezy
             </Link>
           </div>
 

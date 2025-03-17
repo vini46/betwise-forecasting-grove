@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="text-xl font-bold font-display">
-              BetWise
+              Prophezy
             </Link>
             <p className="mt-4 text-muted-foreground">
               A prediction market platform where users can bet on real-world events using virtual currency.
@@ -45,7 +45,7 @@ const Footer = () => {
         
         <div className="mt-12 pt-8 border-t border-border">
           <p className="text-sm text-center text-muted-foreground">
-            &copy; {new Date().getFullYear()} BetWise. All rights reserved.
+            &copy; {new Date().getFullYear()} Prophezy. All rights reserved.
           </p>
         </div>
       </div>

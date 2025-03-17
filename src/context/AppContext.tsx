@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -35,6 +36,19 @@ type Bet = {
   timestamp: Date;
 };
 
+interface NewEventData {
+  title: string;
+  description: string;
+  category: string;
+  closingDate: Date;
+  resolutionDate: Date;
+  resolutionSource: string;
+  yesPrice: number;
+  noPrice: number;
+  fee: number;
+  imageUrl?: string;
+}
+
 interface AppContextType {
   user: User | null;
   events: Event[];
@@ -44,9 +58,12 @@ interface AppContextType {
   logout: () => void;
   register: (name: string, email: string, password: string) => Promise<void>;
   addFunds: (amount: number) => void;
+  withdrawFunds: (amount: number) => void;
   placeBet: (eventId: string, type: 'yes' | 'no', quantity: number) => void;
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (isOpen: boolean) => void;
+  createEvent: (eventData: NewEventData) => Promise<void>;
+  resolveEvent: (eventId: string, outcome: 'yes' | 'no') => Promise<void>;
 }
 
 const defaultContext: AppContextType = {
@@ -58,9 +75,12 @@ const defaultContext: AppContextType = {
   logout: () => {},
   register: async () => {},
   addFunds: () => {},
+  withdrawFunds: () => {},
   placeBet: () => {},
   isAuthModalOpen: false,
   setIsAuthModalOpen: () => {},
+  createEvent: async () => {},
+  resolveEvent: async () => {},
 };
 
 const AppContext = createContext<AppContextType>(defaultContext);
@@ -228,6 +248,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     toast.success(`Successfully added ₹${amount.toLocaleString()} to your wallet`);
   };
 
+  const withdrawFunds = (amount: number) => {
+    if (!user) return;
+    
+    if (user.walletBalance < amount) {
+      toast.error('Insufficient funds in your wallet');
+      return;
+    }
+    
+    const updatedUser = {
+      ...user,
+      walletBalance: user.walletBalance - amount,
+    };
+    
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    toast.success(`Successfully initiated withdrawal of ₹${amount.toLocaleString()}`);
+  };
+
   const placeBet = (eventId: string, type: 'yes' | 'no', quantity: number) => {
     if (!user) {
       setIsAuthModalOpen(true);
@@ -262,14 +300,79 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       timestamp: new Date(),
     };
     
+    // Update event volumes
+    const updatedEvents = events.map(e => {
+      if (e.id === eventId) {
+        return {
+          ...e,
+          yesVolume: type === 'yes' ? e.yesVolume + totalCost : e.yesVolume,
+          noVolume: type === 'no' ? e.noVolume + totalCost : e.noVolume,
+        };
+      }
+      return e;
+    });
+    
     // Update state
     setUser(updatedUser);
     setUserBets([...userBets, newBet]);
+    setEvents(updatedEvents);
     
     // Update localStorage
     localStorage.setItem('user', JSON.stringify(updatedUser));
     
     toast.success(`Successfully placed a ${type.toUpperCase()} bet of ${quantity} contracts`);
+  };
+
+  const createEvent = async (eventData: NewEventData): Promise<void> => {
+    try {
+      // This would be replaced with actual API calls
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Create a new event with a unique ID
+      const newEvent: Event = {
+        id: `event-${Date.now()}`,
+        ...eventData,
+        status: 'open',
+        yesVolume: 0,
+        noVolume: 0,
+      };
+      
+      setEvents([...events, newEvent]);
+      toast.success('Event created successfully');
+    } catch (error) {
+      console.error('Failed to create event:', error);
+      toast.error('Failed to create event');
+      throw error;
+    }
+  };
+
+  const resolveEvent = async (eventId: string, outcome: 'yes' | 'no'): Promise<void> => {
+    try {
+      // This would be replaced with actual API calls
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Update the event status
+      const updatedEvents = events.map(event => {
+        if (event.id === eventId) {
+          return {
+            ...event,
+            status: 'resolved' as const,
+          };
+        }
+        return event;
+      });
+      
+      setEvents(updatedEvents);
+      
+      // In a real app, this would trigger payouts to users
+      toast.success(`Event resolved as ${outcome.toUpperCase()}`);
+    } catch (error) {
+      console.error('Failed to resolve event:', error);
+      toast.error('Failed to resolve event');
+      throw error;
+    }
   };
 
   // Check for stored user data on initial load
@@ -298,9 +401,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         logout,
         register,
         addFunds,
+        withdrawFunds,
         placeBet,
         isAuthModalOpen,
         setIsAuthModalOpen,
+        createEvent,
+        resolveEvent,
       }}
     >
       {children}
