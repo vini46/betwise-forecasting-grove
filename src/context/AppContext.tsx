@@ -141,7 +141,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [userBets, setUserBets] = useState<Bet[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [predefineLoginMode, setPredefineLoginMode] = useState(true);
+  const [predefineLoginMode, setPredefineLoginMode] = useState(false); // Changed to false
 
   // Load mock data or fetch from API
   useEffect(() => {
