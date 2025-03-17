@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApp } from '@/context/AppContext';
 import { toast } from 'sonner';
-import { Bank, AlertCircle } from 'lucide-react';
+import { PiggyBank, AlertCircle } from 'lucide-react';
 
 interface WithdrawModalProps {
   isOpen: boolean;
@@ -67,7 +67,7 @@ const WithdrawModal = ({ isOpen, onClose }: WithdrawModalProps) => {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Bank size={20} /> Withdraw Funds
+            <PiggyBank size={20} /> Withdraw Funds
           </DialogTitle>
           <DialogDescription>
             Withdraw funds from your wallet to your bank account.
