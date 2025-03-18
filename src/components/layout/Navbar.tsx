@@ -8,7 +8,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  ChevronDown
+  ChevronDown,
+  ShieldCheck
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -108,6 +109,16 @@ const Navbar = () => {
                     >
                       Profile
                     </Link>
+                    {user?.role === 'admin' && (
+                      <Link
+                        to="/admin"
+                        className="block px-4 py-2 text-sm text-indigo-600 hover:bg-gray-100 w-full text-left flex items-center"
+                        onClick={() => setProfileDropdownOpen(false)}
+                      >
+                        <ShieldCheck size={16} className="mr-2" />
+                        Admin Panel
+                      </Link>
+                    )}
                     <button
                       className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left flex items-center"
                       onClick={() => {
@@ -172,6 +183,18 @@ const Navbar = () => {
                   <span className="text-gray-500">Account</span>
                   <span className="font-medium">{user?.name}</span>
                 </div>
+                
+                {user?.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    className="w-full flex items-center justify-center px-4 py-3 border border-indigo-300 text-indigo-600 rounded-md"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <ShieldCheck size={18} className="mr-2" />
+                    Admin Panel
+                  </Link>
+                )}
+                
                 <button
                   className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md text-red-600"
                   onClick={() => {
