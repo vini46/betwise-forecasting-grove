@@ -9,7 +9,7 @@ import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { useApp } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import { IndianRupee, CalendarPlus } from 'lucide-react';
+import { IndianRupee, CalendarPlus, ShieldAlert } from 'lucide-react';
 
 const AdminEventCreation = () => {
   const { createEvent } = useApp();
@@ -29,7 +29,9 @@ const AdminEventCreation = () => {
   // Check if user is admin
   useEffect(() => {
     const adminAuth = localStorage.getItem('adminAuth');
-    if (adminAuth !== 'true') {
+    const adminRole = localStorage.getItem('adminRole');
+    
+    if (adminAuth !== 'true' || adminRole !== 'admin') {
       toast.error('You need admin privileges to access this page');
       navigate('/');
     } else {
@@ -103,7 +105,17 @@ const AdminEventCreation = () => {
   };
 
   if (!isAdmin) {
-    return null;
+    return (
+      <Card>
+        <CardContent className="pt-6 flex items-center justify-center">
+          <div className="text-center p-6">
+            <ShieldAlert className="mx-auto mb-4 text-red-500" size={48} />
+            <h2 className="text-xl font-semibold mb-2">Access Denied</h2>
+            <p className="text-muted-foreground">You need admin privileges to create events.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

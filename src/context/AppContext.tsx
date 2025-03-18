@@ -6,6 +6,7 @@ type User = {
   name: string;
   email: string;
   walletBalance: number;
+  role?: string; // Add role property to User type
 };
 
 type Event = {
@@ -141,7 +142,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [userBets, setUserBets] = useState<Bet[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [predefineLoginMode, setPredefineLoginMode] = useState(false); // Changed to false
+  const [predefineLoginMode, setPredefineLoginMode] = useState(false);
 
   // Load mock data or fetch from API
   useEffect(() => {
@@ -219,6 +220,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Check if it's an admin login
+      if (email === 'admin' && password === 'admin') {
+        const adminUser = {
+          id: 'admin123',
+          name: 'Admin User',
+          email: 'admin@example.com',
+          walletBalance: 50000,
+          role: 'admin'
+        };
+        
+        setUser(adminUser);
+        setIsAuthenticated(true);
+        setIsAuthModalOpen(false);
+        toast.success(`Welcome back, ${adminUser.name}`);
+        
+        localStorage.setItem('user', JSON.stringify(adminUser));
+        localStorage.setItem('adminAuth', 'true');
+        localStorage.setItem('adminRole', 'admin');
+        return;
+      }
+      
       const predefinedUser = predefinedUsers.find(
         (u) => (u.email === email || u.id === email) && u.password === password
       );
@@ -229,6 +251,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           name: predefinedUser.name,
           email: predefinedUser.email,
           walletBalance: predefinedUser.walletBalance,
+          role: 'user'
         };
         
         setUser(mockUser);
@@ -246,6 +269,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           name: 'Demo User',
           email: email,
           walletBalance: 10000,
+          role: 'user'
         };
         
         setUser(mockUser);
@@ -278,6 +302,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         name: name,
         email: email,
         walletBalance: 5000,
+        role: 'user'
       };
       
       setUser(mockUser);
@@ -297,6 +322,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsAuthenticated(false);
     setUserBets([]);
     localStorage.removeItem('user');
+    
+    // Also clear admin-specific storage items if they exist
+    if (localStorage.getItem('adminAuth') || localStorage.getItem('adminRole')) {
+      localStorage.removeItem('adminAuth');
+      localStorage.removeItem('adminRole');
+    }
+    
     toast.success('You have been logged out');
   };
 
@@ -385,6 +417,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const createEvent = async (eventData: NewEventData): Promise<void> => {
     try {
+      // Check if user has admin role
+      const adminRole = localStorage.getItem('adminRole');
+      if (adminRole !== 'admin') {
+        toast.error('You must be an admin to create events');
+        throw new Error('Permission denied: Admin role required');
+      }
+      
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const newEvent: Event = {

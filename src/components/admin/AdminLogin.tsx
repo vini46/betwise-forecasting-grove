@@ -30,6 +30,8 @@ const AdminLogin = ({ onLogin }: AdminLoginProps) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       if (username === 'admin' && password === 'admin') {
+        // Set the admin role in localStorage
+        localStorage.setItem('adminRole', 'admin');
         toast.success('Admin login successful');
         onLogin();
       } else {

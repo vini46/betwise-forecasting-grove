@@ -20,25 +20,40 @@ import { ShieldCheck } from 'lucide-react';
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   
   // Check if admin is already logged in from localStorage
   useEffect(() => {
     const adminAuth = localStorage.getItem('adminAuth');
+    const adminRole = localStorage.getItem('adminRole');
+    
     if (adminAuth === 'true') {
       setIsAuthenticated(true);
-      toast.success('Welcome back, admin');
+      
+      // Check if the user has the admin role
+      if (adminRole === 'admin') {
+        setIsAdmin(true);
+        toast.success('Welcome back, admin');
+      } else {
+        // If they don't have admin role, log them out
+        handleLogout();
+        toast.error('You need admin privileges to access this page');
+      }
     }
   }, []);
 
   const handleLogin = () => {
     setIsAuthenticated(true);
+    setIsAdmin(true);
     // Store admin authentication in localStorage
     localStorage.setItem('adminAuth', 'true');
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setIsAdmin(false);
     localStorage.removeItem('adminAuth');
+    localStorage.removeItem('adminRole');
     toast.success('Admin logged out successfully');
   };
 
@@ -55,6 +70,30 @@ const Admin = () => {
           >
             <AdminLogin onLogin={handleLogin} />
           </motion.div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center py-12 px-4">
+          <Card className="w-full max-w-md shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl text-center">Access Denied</CardTitle>
+              <CardDescription className="text-center">
+                You do not have admin privileges to access this page.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="flex justify-center">
+              <Button onClick={handleLogout} variant="destructive">
+                Logout
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
         <Footer />
       </div>
