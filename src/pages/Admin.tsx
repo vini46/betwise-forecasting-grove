@@ -10,6 +10,7 @@ import {
   CardTitle, 
   CardFooter 
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import AdminEventCreation from '@/components/admin/AdminEventCreation';
